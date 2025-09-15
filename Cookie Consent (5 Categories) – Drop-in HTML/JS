@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cookie Consent – 5 Categories</title>
+  <style>
+    :root{--bg:#0b1020;--card:#121938;--text:#e8ecff;--muted:#a7b0d8;--brand:#6aa0ff;--ok:#30c48d;--warn:#ffb84d;--red:#ff6b6b}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial;line-height:1.5;color:var(--text);background:#0a0d1a}
+    .cc-banner{position:fixed;inset:auto 0 0 0;background:linear-gradient(180deg,var(--card),#0d1330);border-top:1px solid #2a336a;box-shadow:0 -10px 40px rgba(0,0,0,.35);padding:16px;z-index:99998}
+    .cc-wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+    .cc-title{font-size:16px;font-weight:700;margin:0 0 6px}
+    .cc-desc{margin:0;color:var(--muted);font-size:14px}
+    .cc-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{all:unset;cursor:pointer;padding:10px 14px;border-radius:12px;font-weight:700;border:1px solid #2a336a}
+    .btn.primary{background:var(--brand);color:#081227;border-color:transparent}
+    .btn.ghost{color:var(--text)}
+    .btn.danger{background:transparent;color:#ffb7b7;border-color:#573040}
+    .btn:focus-visible{outline:2px solid #8ab6ff;outline-offset:2px}
+
+    /* Modal */
+    .cc-overlay{position:fixed;inset:0;background:rgba(7,10,25,.75);backdrop-filter:saturate(120%) blur(4px);display:none;z-index:99999}
+    .cc-modal{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:100000}
+    .cc-card{pointer-events:auto;width:min(920px,92vw);max-height:86vh;overflow:auto;background:linear-gradient(180deg,var(--card),#0c1536);border:1px solid #2a336a;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+    .cc-hd{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid #2a336a;position:sticky;top:0;background:inherit}
+    .cc-hd h2{margin:0;font-size:18px}
+    .cc-bd{padding:18px 20px;display:grid;gap:16px}
+    .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #2a336a;border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.02)}
+    .row h3{margin:0 0 6px;font-size:15px}
+    .row p{margin:0;color:var(--muted);font-size:13px}
+    .toggle{appearance:none;width:46px;height:26px;border-radius:999px;background:#303b76;position:relative;outline:none;border:1px solid #47539b;cursor:pointer;transition:.2s}
+    .toggle:before{content:"";position:absolute;inset:3px auto auto 3px;width:18px;height:18px;border-radius:50%;background:#b7c3ff;transition:.2s}
+    .toggle:checked{background:#2d865f;border-color:#2d865f}
+    .toggle:checked:before{left:25px;background:#eafff6}
+    .toggle[disabled]{opacity:.6;cursor:not-allowed}
+    .cc-ft{display:flex;justify-content:space-between;gap:10px;padding:16px 20px;border-top:1px solid #2a336a;position:sticky;bottom:0;background:inherit}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid #2a336a;color:var(--muted);font-size:12px}
+    .pill b{color:var(--text)}
+
+    /* Example blocked areas */
+    .blocked{border:1px dashed #6b74b3;border-radius:12px;padding:12px;color:#9aa5e8;background:rgba(106,160,255,.06)}
+    code{background:#0b1333;color:#bfe1ff;padding:2px 6px;border-radius:8px}
+    .mt-2{margin-top:.5rem}.mt-3{margin-top:1rem}
+  </style>
+</head>
+<body>
+
+  <!-- Cookie Banner -->
+  <section class="cc-banner" id="cc-banner" role="region" aria-label="Cookie banner">
+    <div class="cc-wrap">
+      <div>
+        <p class="cc-title">เราใช้คุกกี้เพื่อพัฒนาประสบการณ์ของคุณ (We use cookies)</p>
+        <p class="cc-desc">คุกกี้ที่จำเป็นจะถูกใช้งานเสมอ ส่วนคุกกี้อื่นๆ จะทำงานเมื่อคุณยินยอมเท่านั้น คุณสามารถเปลี่ยนการตั้งค่าได้ทุกเมื่อ</p>
+      </div>
+      <div class="cc-actions">
+        <button class="btn danger" id="cc-reject">ปฏิเสธทั้งหมด (ยกเว้นจำเป็น)</button>
+        <button class="btn ghost" id="cc-customize">ตั้งค่าคุกกี้</button>
+        <button class="btn primary" id="cc-accept">ยอมรับทั้งหมด</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preferences Modal -->
+  <div class="cc-overlay" id="cc-overlay"></div>
+  <section class="cc-modal" aria-hidden="true" id="cc-modal">
+    <div class="cc-card" role="dialog" aria-modal="true" aria-labelledby="cc-title">
+      <header class="cc-hd">
+        <h2 id="cc-title">การตั้งค่าคุกกี้ / Cookie Preferences</h2>
+        <div class="pill">สถานะ: <b id="cc-status">ยังไม่ได้บันทึก</b></div>
+      </header>
+      <div class="cc-bd">
+        <div class="row">
+          <div>
+            <h3>1) Strictly Necessary / คุกกี้ที่จำเป็น</h3>
+            <p>จำเป็นต่อการทำงานของเว็บไซต์ เช่น การรักษาความปลอดภัย การจดจำสถานะคอนเซนต์ (ปิดไม่ได้)</p>
+          </div>
+          <input type="checkbox" class="toggle" checked disabled data-cat="necessary" />
+        </div>
+        <div class="row">
+          <div>
+            <h3>2) Performance / คุกกี้ประสิทธิภาพ</h3>
+            <p>สำหรับการวิเคราะห์สถิติและประสิทธิภาพของเว็บไซต์แบบรวม</p>
+          </div>
+          <input type="checkbox" class="toggle" id="cc-performance" data-cat="performance" />
+        </div>
+        <div class="row">
+          <div>
+            <h3>3) Functional / คุกกี้การใช้งาน</h3>
+            <p>จดจำการตั้งค่าผู้ใช้และฟังก์ชันเพิ่มเติม เช่น ภาษา แชต วิดเจ็ต</p>
+          </div>
+          <input type="checkbox" class="toggle" id="cc-functional" data-cat="functional" />
+        </div>
+        <div class="row">
+          <div>
+            <h3>4) Targeting / คุกกี้กำหนดเป้าหมาย</h3>
+            <p>สำหรับโฆษณา การรีมาร์เก็ตติ้ง และการระบุผู้ชม</p>
+          </div>
+          <input type="checkbox" class="toggle" id="cc-targeting" data-cat="targeting" />
+        </div>
+        <div class="row">
+          <div>
+            <h3>5) Social Media / คุกกี้โซเชียลมีเดีย</h3>
+            <p>เกี่ยวข้องกับปลั๊กอินและคอนเทนต์จากแพลตฟอร์มโซเชียล (เช่น YouTube, LinkedIn)</p>
+          </div>
+          <input type="checkbox" class="toggle" id="cc-social" data-cat="social" />
+        </div>
+
+        <div class="blocked mt-2">
+          <b>ตัวอย่างสคริปต์ที่ถูกบล็อกจนกว่าจะยินยอม:</b>
+          <div class="mt-2">
+            • GA4 (Performance):
+            <pre><code>&lt;script type="text/plain" data-cookie-category="performance" data-src="https://www.googletagmanager.com/gtag/js?id=G-XXXX"&gt;&lt;/script&gt;
+&lt;script type="text/plain" data-cookie-category="performance"&gt;
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXX');
+&lt;/script&gt;</code></pre>
+          </div>
+          <div class="mt-2">
+            • Meta Pixel (Targeting):
+            <pre><code>&lt;script type="text/plain" data-cookie-category="targeting"&gt;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)}; if(!f._fbq)f._fbq=n;n.push=n; n.loaded=!0;n.version='2.0';n.queue=[]; t=b.createElement(e);t.async=!0;t.src=v; s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init','YOUR_PIXEL_ID');
+  fbq('track','PageView');
+&lt;/script&gt;</code></pre>
+          </div>
+          <div class="mt-2">
+            • YouTube Embed (Social Media):
+            <pre><code>&lt;iframe width="560" height="315" data-cookie-category="social" data-src="https://www.youtube.com/embed/VIDEO_ID" title="YouTube video" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+      <footer class="cc-ft">
+        <div class="cc-actions">
+          <button class="btn ghost" id="cc-reject-some">บันทึกเป็นปฏิเสธส่วนใหญ่</button>
+        </div>
+        <div class="cc-actions">
+          <button class="btn" id="cc-save">บันทึกการตั้งค่า</button>
+          <button class="btn primary" id="cc-accept-some">ยอมรับที่เลือก</button>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- Demo area that would be swapped when social consent is granted -->
+  <main style="max-width:980px;margin:60px auto;padding:24px">
+    <h1>ตัวอย่างหน้าเว็บ</h1>
+    <p>ฝังวิดีโอ YouTube แบบรอคอนเซนต์:</p>
+    <div class="blocked" id="yt-holder">
+      <p>วิดีโอถูกปิดไว้จนกว่าจะยินยอมหมวด <b>Social Media</b>.</p>
+      <iframe width="560" height="315" data-cookie-category="social" data-src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'cookieConsentV1';
+      const COOKIE_PREFIX = 'consent_';
+      const defaultState = { necessary: true, performance: false, functional: false, targeting: false, social: false, ts: Date.now() };
+
+      const $ = (sel, ctx=document) => ctx.querySelector(sel);
+      const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+
+      function readState(){
+        try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { ...defaultState }; }
+        catch(e){ return { ...defaultState }; }
+      }
+      function writeState(state){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        // mirror to simple cookies (365d)
+        const exp = new Date(Date.now() + 365*24*60*60*1000).toUTCString();
+        Object.entries(state).forEach(([k,v])=>{ if(k==='ts') return; document.cookie = `${COOKIE_PREFIX}${k}=${v?1:0}; path=/; SameSite=Lax; expires=${exp}`; });
+      }
+
+      function updateStatusBadge(state){
+        const badge = $('#cc-status');
+        const enabled = Object.entries(state).filter(([k,v]) => k!=='ts' && v && k!=='necessary').map(([k])=>k).join(', ') || 'เฉพาะที่จำเป็น';
+        badge.textContent = 'เปิดใช้งาน: ' + enabled;
+      }
+
+      function openModal(){ $('#cc-overlay').style.display='block'; $('#cc-modal').setAttribute('aria-hidden','false'); }
+      function closeModal(){ $('#cc-overlay').style.display='none'; $('#cc-modal').setAttribute('aria-hidden','true'); }
+
+      function applyTogglesFromState(state){
+        $('#cc-performance').checked = !!state.performance;
+        $('#cc-functional').checked = !!state.functional;
+        $('#cc-targeting').checked = !!state.targeting;
+        $('#cc-social').checked = !!state.social;
+        updateStatusBadge(state);
+      }
+
+      // Execute blocked scripts/iframes once allowed
+      function enableCategory(cat){
+        // Scripts with data-cookie-category
+        $$(`script[type="text/plain"][data-cookie-category="${cat}"]`).forEach(s=>{
+          const real = document.createElement('script');
+          // inline content
+          if(s.textContent && s.textContent.trim().length){ real.text = s.textContent; }
+          // external
+          const src = s.getAttribute('data-src');
+          if(src){ real.src = src; real.async = true; }
+          // copy attrs except type & data-cookie-category
+          for(const {name,value} of Array.from(s.attributes)){
+            if(name==='type' || name==='data-cookie-category') continue;
+            if(name==='data-src') continue;
+            real.setAttribute(name,value);
+          }
+          s.parentNode.replaceChild(real,s);
+        });
+        // Iframes delayed by data-src
+        $$(`iframe[data-cookie-category="${cat}"][data-src]`).forEach(f=>{
+          if(!f.getAttribute('src')){ f.setAttribute('src', f.getAttribute('data-src')); }
+        });
+      }
+
+      function applyConsent(state){
+        // For each allowed category, enable queued assets
+        ['performance','functional','targeting','social'].forEach(cat=>{ if(state[cat]) enableCategory(cat); });
+        // Hide banner after initial save
+        $('#cc-banner').style.display = 'none';
+      }
+
+      function acceptAll(){
+        const state = { ...defaultState, performance:true, functional:true, targeting:true, social:true, ts: Date.now() };
+        writeState(state); applyTogglesFromState(state); applyConsent(state); closeModal();
+      }
+      function rejectAll(){
+        const state = { ...defaultState, performance:false, functional:false, targeting:false, social:false, ts: Date.now() };
+        writeState(state); applyTogglesFromState(state); // do not enable any
+        $('#cc-banner').style.display = 'none'; closeModal();
+      }
+      function saveSelection(){
+        const current = readState();
+        const state = {
+          ...current,
+          performance: $('#cc-performance').checked,
+          functional: $('#cc-functional').checked,
+          targeting: $('#cc-targeting').checked,
+          social: $('#cc-social').checked,
+          ts: Date.now()
+        };
+        writeState(state); applyTogglesFromState(state); applyConsent(state); closeModal();
+      }
+
+      // Wire UI
+      $('#cc-accept').addEventListener('click', acceptAll);
+      $('#cc-reject').addEventListener('click', rejectAll);
+      $('#cc-customize').addEventListener('click', openModal);
+      $('#cc-save').addEventListener('click', saveSelection);
+      $('#cc-accept-some').addEventListener('click', saveSelection);
+      $('#cc-reject-some').addEventListener('click', ()=>{ $('#cc-performance').checked=false; $('#cc-functional').checked=false; $('#cc-targeting').checked=false; $('#cc-social').checked=false; saveSelection(); });
+      $('#cc-overlay').addEventListener('click', closeModal);
+
+      // Init on load
+      const state = readState();
+      applyTogglesFromState(state);
+      const firstVisit = !localStorage.getItem(STORAGE_KEY);
+      if(!firstVisit){ // already decided
+        if(state.performance||state.functional||state.targeting||state.social){ applyConsent(state); }
+        else { $('#cc-banner').style.display = 'none'; }
+      }
+
+      // Optional: expose for scripts to check
+      window.getCookieConsent = () => ({ ...readState() });
+
+    })();
+  </script>
+</body>
+</html>
